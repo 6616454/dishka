@@ -115,7 +115,7 @@ def wrap_injection(
         async def autoinjected_func(*args, **kwargs):
             container = container_getter(args, kwargs)
             for param in additional_params:
-                kwargs.pop(param.name)
+                kwargs.pop(param.name, None)
             solved = {
                 name: await container.get(dep)
                 for name, dep in dependencies.items()
@@ -125,7 +125,7 @@ def wrap_injection(
         def autoinjected_func(*args, **kwargs):
             container = container_getter(args, kwargs)
             for param in additional_params:
-                kwargs.pop(param.name)
+                kwargs.pop(param.name, None)
             solved = {
                 name: container.get(dep)
                 for name, dep in dependencies.items()
