@@ -8,8 +8,8 @@ from aiohttp.web_response import Response
 
 from dishka.integrations.aiohttp import (
     Depends,
-    setup_dishka,
     inject,
+    setup_dishka,
 )
 from ..common import (
     APP_DEP_VALUE,
@@ -29,7 +29,10 @@ async def dishka_app(view, provider):
     yield app
 
 
-async def handle_with_app(a: Annotated[AppDep, Depends()], mock: Annotated[Mock, Depends()]):
+async def handle_with_app(
+    a: Annotated[AppDep, Depends()],
+    mock: Annotated[Mock, Depends()],
+):
     mock(a)
     return web.Response(text="Success!")
 
