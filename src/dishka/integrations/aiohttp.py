@@ -34,9 +34,7 @@ def inject(func):
     return wrap_injection(
         func=func,
         remove_depends=True,
-        container_getter=lambda p, k: k[request_param].dishka_container
-        if k.get(request_param)
-        else p[0].request.dishka_container,
+        container_getter=lambda _, k: k[request_param].dishka_container,
         additional_params=additional_params,
         is_async=True,
     )
