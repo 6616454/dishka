@@ -27,7 +27,7 @@ def inject(func):
             Parameter(
                 name=request_param,
                 annotation=web.Request,
-                kind=Parameter.POSITIONAL_OR_KEYWORD,
+                kind=Parameter.KEYWORD_ONLY,
             ),
         ]
 
