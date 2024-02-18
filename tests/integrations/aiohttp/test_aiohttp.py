@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import Annotated
+from typing import Annotated, AsyncGenerator
 from unittest.mock import Mock
 
 import pytest
@@ -21,7 +21,7 @@ from ..common import (
 
 
 @asynccontextmanager
-async def dishka_app(view, provider):
+async def dishka_app(view, provider) -> web.Application:
     app = web.Application()
     app.router.add_get("/", inject(view))
     setup_dishka(app=app, providers=[provider])
