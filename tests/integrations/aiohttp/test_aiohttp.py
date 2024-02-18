@@ -20,13 +20,12 @@ from ..common import (
 )
 
 
-@asynccontextmanager
-async def dishka_app(view, provider) -> web.Application:
+def dishka_app(view, provider) -> web.Application:
     app = web.Application()
     app.router.add_get("/", inject(view))
     setup_dishka(app=app, providers=[provider])
 
-    yield app
+    return app
 
 
 async def handle_with_app(
@@ -39,13 +38,12 @@ async def handle_with_app(
 
 @pytest.mark.asyncio
 async def test_app_dependency(aiohttp_client, app_provider: AppProvider):
-    async with dishka_app(handle_with_app, app_provider) as app:
-        client = await aiohttp_client(app)
-        async with client:
-            await client.get('/')
-            app_provider.mock.assert_called_with(APP_DEP_VALUE)
-            app_provider.app_released.assert_not_called()
-        app_provider.app_released.assert_called()
+    client = await aiohttp_client(dishka_app(handle_with_app, app_provider))
+    async with client:
+        await client.get('/')
+        app_provider.mock.assert_called_with(APP_DEP_VALUE)
+        app_provider.app_released.assert_not_called()
+    app_provider.app_released.assert_called()
 
 
 async def get_with_request(
@@ -58,24 +56,22 @@ async def get_with_request(
 
 @pytest.mark.asyncio
 async def test_request_dependency(aiohttp_client, app_provider: AppProvider):
-    async with dishka_app(get_with_request, app_provider) as app:
-        client = await aiohttp_client(app)
-        async with client:
-            await client.get("/")
-            app_provider.mock.assert_called_with(REQUEST_DEP_VALUE)
-            app_provider.request_released.assert_called_once()
+    client = await aiohttp_client(dishka_app(get_with_request, app_provider))
+    async with client:
+        await client.get("/")
+        app_provider.mock.assert_called_with(REQUEST_DEP_VALUE)
+        app_provider.request_released.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_request_dependency2(aiohttp_client, app_provider: AppProvider):
-    async with dishka_app(get_with_request, app_provider) as app:
-        client = await aiohttp_client(app)
-        async with client:
-            await client.get("/")
-            app_provider.mock.assert_called_with(REQUEST_DEP_VALUE)
-            app_provider.mock.reset_mock()
-            app_provider.request_released.assert_called_once()
-            app_provider.request_released.reset_mock()
-            await client.get("/")
-            app_provider.mock.assert_called_with(REQUEST_DEP_VALUE)
-            app_provider.request_released.assert_called_once()
+    client = await aiohttp_client(dishka_app(get_with_request, app_provider))
+    async with client:
+        await client.get("/")
+        app_provider.mock.assert_called_with(REQUEST_DEP_VALUE)
+        app_provider.mock.reset_mock()
+        app_provider.request_released.assert_called_once()
+        app_provider.request_released.reset_mock()
+        await client.get("/")
+        app_provider.mock.assert_called_with(REQUEST_DEP_VALUE)
+        app_provider.request_released.assert_called_once()
